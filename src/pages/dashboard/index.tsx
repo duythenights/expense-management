@@ -157,7 +157,7 @@ export default function DashboardPage() {
     // Expense
     const [form] = Form.useForm();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [value, setValue, removeValue] = useLocalStorage<FundType[]>(
+    const [value, setValue] = useLocalStorage<FundType[]>(
         "fund-value",
         defaultFund
     );
