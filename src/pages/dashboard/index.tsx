@@ -1,11 +1,14 @@
 import { PlusCircleOutlined } from "@ant-design/icons";
 import {
+    Button,
     Card,
     DatePicker,
     Flex,
     Form,
     Input,
+    List,
     Modal,
+    Popconfirm,
     Select,
     Tag,
     Typography,
@@ -117,24 +120,22 @@ const defaultFund: FundType[] = [
 
 const chooseQuicklyList: ChooseQuicklyItem[] = [
     {
-        value: "43000",
+        value: "40000",
         color: getRandomBrightColor(),
     },
     {
         value: "45000",
         color: getRandomBrightColor(),
     },
+
     {
         value: "56000",
         color: getRandomBrightColor(),
     },
     {
-        value: "100000",
+        value: "60000",
         color: getRandomBrightColor(),
     },
-];
-
-const chooseQuicklyListPumped: ChooseQuicklyItem[] = [
     {
         value: "100000",
         color: getRandomBrightColor(),
@@ -143,12 +144,27 @@ const chooseQuicklyListPumped: ChooseQuicklyItem[] = [
         value: "200000",
         color: getRandomBrightColor(),
     },
+];
+
+const chooseQuicklyListPumped: ChooseQuicklyItem[] = [
     {
-        value: "500000",
+        value: "200000",
         color: getRandomBrightColor(),
     },
     {
-        value: "1000000",
+        value: "250000",
+        color: getRandomBrightColor(),
+    },
+    {
+        value: "400000",
+        color: getRandomBrightColor(),
+    },
+    {
+        value: "1500000",
+        color: getRandomBrightColor(),
+    },
+    {
+        value: "2500000",
         color: getRandomBrightColor(),
     },
 ];
@@ -183,7 +199,7 @@ export default function DashboardPage() {
         });
         setValue(clone);
         setIsModalOpen(false);
-        form.resetFields()
+        form.resetFields();
         message.success("Them chi tieu thanh cong");
     };
     const handleChooseQuickly = (value: string) => {
@@ -194,7 +210,7 @@ export default function DashboardPage() {
     const [formPumped] = Form.useForm();
     const [saveMoney, setSavingMoney] = useLocalStorage<SavingMoney>(
         "saving-money",
-        { total: 500000, current: 500000, historyList: [] }
+        { total: 0, current: 0, historyList: [] }
     );
 
     const [isModalPumpedMoneyOpen, setIsModalPumpedMoneyOpen] = useState(false);
@@ -222,7 +238,7 @@ export default function DashboardPage() {
         setValue(cloneValue);
         setSavingMoney(cloneSaving);
         setIsModalPumpedMoneyOpen(false);
-        formPumped.resetFields()
+        formPumped.resetFields();
         message.success("Bom tien thanh cong");
     };
 
@@ -231,9 +247,29 @@ export default function DashboardPage() {
     };
 
     // Add saving money
-    const handleChangeSavingMoney = (value: string) => {
-        setSavingMoney(prev => ({...prev, total: prev.total + +value, current: prev.current + +value}))
-        message.success("Them tien tiet kiem thanh cong!")
+    const [isModalSavingOpen, setIsModalSavingOpen] = useState(false);
+    const [formSaving] = Form.useForm();
+
+    const onSubmitFormSaving = () => formSaving.submit();
+    const handleChangeSavingMoney = () => {
+        const value = formSaving.getFieldValue("money");
+        setSavingMoney((prev) => ({
+            ...prev,
+            total: prev.total + +value,
+            current: prev.current + +value,
+        }));
+        setIsModalSavingOpen(false);
+        formSaving.resetFields();
+        message.success("Bom tien tiet kiem thanh cong!");
+    };
+
+    // Detail fund
+    const [detailData, setDetailData] = useState<ExpenseItem[] | undefined>([]);
+    const [isOpenDetail, setIsOpenDetail] = useState(false);
+    const handleOpenDetail = (fundId: string) => {
+        setIsOpenDetail(true);
+        const data = value.find((item) => item.id === fundId)?.expenseList;
+        setDetailData(data);
     };
     return (
         <>
@@ -242,7 +278,16 @@ export default function DashboardPage() {
                 style={{ width: "100%" }}
                 extra={
                     <Flex gap={20} align="center" justify="center">
-                        <BackupButton/>
+                        <Popconfirm
+                            title="Reset lai cac quy"
+                            description="Ban thuc su muon thuc hien chu?"
+                            onConfirm={() => setValue(defaultFund)}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <Button danger>reset</Button>
+                        </Popconfirm>
+                        <BackupButton />
                         <span
                             style={{
                                 backgroundColor: "#108ee9",
@@ -253,15 +298,12 @@ export default function DashboardPage() {
                             }}
                             onClick={() => setIsModalPumpedMoneyOpen(true)}
                         >
-                            Bơm tiền
+                            Bơm tiền quỹ
                         </span>
-                        <span>Tien tiet kiem</span>
-                        <Typography.Paragraph
-                            style={{ marginBottom: 0 }}
-                            editable={{
-                                onChange: handleChangeSavingMoney,
-                            }}
-                        >
+                        <Button onClick={() => setIsModalSavingOpen(true)}>
+                            Bơm tiền tiết kiệm
+                        </Button>
+                        <Typography.Paragraph style={{ marginBottom: 0 }}>
                             {numeral(saveMoney.current).format("0,0")}
                         </Typography.Paragraph>
                         <PlusCircleOutlined
@@ -286,6 +328,15 @@ export default function DashboardPage() {
                                 width: "calc(100% / 4 - 30px)",
                                 minWidth: "300px",
                             }}
+                            extra={
+                                <Button
+                                    type="dashed"
+                                    style={{ color: "green" }}
+                                    onClick={() => handleOpenDetail(item.id)}
+                                >
+                                    Lich su
+                                </Button>
+                            }
                         >
                             <Flex vertical justify="flex-start" gap={10}>
                                 <Tag
@@ -434,7 +485,9 @@ export default function DashboardPage() {
                                 }}
                                 key={item.value}
                                 color={item.color}
-                                onClick={() => handleChooseQuicklyPumped(item.value)}
+                                onClick={() =>
+                                    handleChooseQuicklyPumped(item.value)
+                                }
                             >
                                 {item.value}
                             </Tag>
@@ -477,6 +530,52 @@ export default function DashboardPage() {
                         <Input placeholder="ghi chu" />
                     </Form.Item>
                 </Form>
+            </Modal>
+
+            <Modal
+                title="Bom tien tiet kiem"
+                open={isModalSavingOpen}
+                onOk={onSubmitFormSaving}
+                onCancel={() => setIsModalSavingOpen(false)}
+            >
+                <Form form={formSaving} onFinish={handleChangeSavingMoney}>
+                    <Form.Item
+                        hasFeedback
+                        rules={[
+                            {
+                                required: true,
+                                message: "So tien khong duoc bo trong",
+                            },
+                        ]}
+                        name={"money"}
+                    >
+                        <Input placeholder="So tien muon bom" />
+                    </Form.Item>
+                </Form>
+            </Modal>
+            <Modal
+                title="Bom tien tiet kiem"
+                open={isOpenDetail}
+                onOk={onSubmitFormSaving}
+                onCancel={() => setIsOpenDetail(false)}
+                footer
+            >
+                <List
+                    bordered
+                    dataSource={detailData}
+                    renderItem={(item) => (
+                        <List.Item title={'hello'} key={(item?.detail || '1') + (item?.date || '0') + item.cost} style={{display:'flex', flexDirection:"column", justifyContent:'flex-start', alignItems:"flex-start", gap:"10px"}}>
+                            <Tag color="cyan">{item.date}</Tag>
+                            <div>
+
+                            <Typography.Text mark>
+                                [{numeral(item.cost).format("0,0")}]
+                            </Typography.Text>{" "}
+                            {item.detail || 'n/a'}
+                            </div>
+                        </List.Item>
+                    )}
+                />
             </Modal>
         </>
     );
