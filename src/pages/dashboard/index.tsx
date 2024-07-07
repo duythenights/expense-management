@@ -227,6 +227,7 @@ export default function DashboardPage() {
             if (item.id === formValues.fundId) {
                 item.totalMoneyHaving =
                     +item.totalMoneyHaving + +formValues.money;
+                item.totalMoneyLast = (item?.totalMoneyLast || 0) + +formValues.money;
                 cloneSaving.current = saveMoney.current - +formValues.money;
                 cloneSaving.historyList.push({
                     ...formValues,
@@ -377,8 +378,7 @@ export default function DashboardPage() {
                                     <Flex justify="space-between">
                                         <span>Con lai: </span>
                                         {numeral(
-                                            (item.totalMoneyHaving - item.totalMoneyExpensing ) ||
-                                                item.totalMoneyHaving
+                                            (item?.totalMoneyLast ?? 0)
                                         ).format("0,0")}
                                     </Flex>
                                 </Tag>
