@@ -377,7 +377,7 @@ export default function DashboardPage() {
                                     <Flex justify="space-between">
                                         <span>Con lai: </span>
                                         {numeral(
-                                            item.totalMoneyLast ||
+                                            (item.totalMoneyHaving - item.totalMoneyExpensing ) ||
                                                 item.totalMoneyHaving
                                         ).format("0,0")}
                                     </Flex>
