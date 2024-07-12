@@ -559,6 +559,10 @@ export default function DashboardPage() {
                 onOk={onSubmitFormSaving}
                 onCancel={() => setIsOpenDetail(false)}
                 footer
+                style={{
+                    maxHeight: "600px",
+                    overflow:"scroll"
+                }}
             >
                 <List
                     bordered
